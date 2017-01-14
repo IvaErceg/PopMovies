@@ -1,80 +1,92 @@
 package com.example.android.popularmovies;
 
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.GridView;
+import android.widget.ProgressBar;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String BASE_URL = "https://api.themoviedb.org/3/discover/movie/";
-    private static final String QUERY = "q";
-    private static final String SORT = "sort_by";
-    private static final String API_KEY = "api key here";
-    private static final String sortBy = "popularity.desc";
-
-    private TextView displayResponse;
+    private static final String sortByPop = "popular";
+    private static final String sortByRatings = "top_rated";
+    private static final String sortByRelease = "now_playing";
+    private ProgressBar mLoadingIndicator;
+    GridView mPostersGrid;
+    MovieAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
+        mPostersGrid = (GridView) findViewById(R.id.gw_posters);
+        new MovieTask().execute(sortByPop);
 
-        displayResponse = (TextView) findViewById(R.id.tw_display);
-        URL moviesUrl = getUrl();
-        try {
-            displayResponse.setText(getResponseFromHttp(moviesUrl));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mAdapter = new MovieAdapter(this, new ArrayList<Movie>());
+        mPostersGrid.setAdapter(mAdapter);
+
     }
 
-    public URL getUrl() {
-        Uri builtUri = Uri.parse(BASE_URL).buildUpon().appendQueryParameter(QUERY, API_KEY).appendQueryParameter(SORT, sortBy).build();
-        URL moviesUrl = null;
-        try {
-            moviesUrl = new URL(builtUri.toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return moviesUrl;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
-    public String getResponseFromHttp(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        String response = null;
-        try {
-            if (connection.getResponseCode() == 200) {
-                InputStream in = connection.getInputStream();
-                response = readStream(in);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sortRating:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                new MovieTask().execute(sortByRatings);
+                return true;
+            case R.id.sortPopularity:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                new MovieTask().execute(sortByPop);
+                return true;
+            case R.id.sortRelease:
+                if (item.isChecked()) item.setChecked(false);
+                else item.setChecked(true);
+                new MovieTask().execute(sortByRelease);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    class MovieTask extends AsyncTask<String, Void, List<Movie>> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected List<Movie> doInBackground(String... strings) {
+            if (strings.length == 0) {
+                return null;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            connection.disconnect();
+            String sort = strings[0];
+            return NetworkUtils.fetchMovieData(sort);
         }
-        return response;
-    }
 
-    private String readStream(InputStream inputStream) throws IOException {
-        StringBuilder output = new StringBuilder();
-        if (inputStream != null) {
-            InputStreamReader streamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-            BufferedReader reader = new BufferedReader(streamReader);
-            String line = reader.readLine();
-            while (line != null) {
-                output.append(line);
-                line = reader.readLine();
+        @Override
+        protected void onPostExecute(List<Movie> movies) {
+            mAdapter.clear();
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            if (movies != null && !movies.isEmpty()) {
+                mAdapter.addAll(movies);
             }
+
         }
-        return output.toString();
+
+
     }
 }

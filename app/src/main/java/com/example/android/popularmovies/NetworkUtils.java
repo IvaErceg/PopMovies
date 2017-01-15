@@ -30,7 +30,6 @@ public class NetworkUtils {
     private static final String API_KEY = "";
 
 
-
     public static List<Movie> fetchMovieData(String requestUrl) {
         // Create URL object
         URL url = getUrl(requestUrl);
@@ -142,7 +141,7 @@ public class NetworkUtils {
                 String overview = currentMovie.getString("overview");
                 String votes = currentMovie.getString("vote_average");
                 //create News object
-                Movie movie = new Movie(title);
+                Movie movie = new Movie(title, overview, release, votes);
                 movie.setPoster(posterPath);
                 // Add single Movie object to the list of movies.
                 movies.add(movie);

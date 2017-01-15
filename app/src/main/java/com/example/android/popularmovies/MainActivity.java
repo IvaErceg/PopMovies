@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +18,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     private static final String sortByPop = "popular";
     private static final String sortByRatings = "top_rated";
     private static final String sortByRelease = "now_playing";
+    private static final int NUM_COLUMNS = 3;
     private ProgressBar mLoadingIndicator;
     MovieAdapter mAdapter;
     RecyclerView mRecyclerView;
     GridLayoutManager mLayoutManager;
-    Toast toast;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mRecyclerView = (RecyclerView) findViewById(R.id.rw_posters);
         // use a grid layout manager
-        mLayoutManager = new GridLayoutManager(this, 3);
+        mLayoutManager = new GridLayoutManager(this, NUM_COLUMNS);
         mRecyclerView.setLayoutManager(mLayoutManager);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-        // specify an adapter (see also next example)
+        // specify an adapter
         mAdapter = new MovieAdapter(new ArrayList<Movie>(), this);
         mRecyclerView.setAdapter(mAdapter);
         new MovieTask().execute(sortByPop);
@@ -72,8 +72,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     }
 
     @Override
-    public void onItemClick(int clickedItemIndex) {
+    public void onItemClick(Movie movie) {
         Intent i = new Intent(MainActivity.this, DetailActivity.class);
+        ;
+        i.putExtra("title", movie.getTitle());
+        i.putExtra("synopsis", movie.getSynopsis());
+        i.putExtra("votes", movie.getVotes());
+        i.putExtra("release", movie.getReleaseDate());
+        i.putExtra("poster", movie.getPoster());
         startActivity(i);
     }
 

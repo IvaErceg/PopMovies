@@ -3,10 +3,11 @@ package com.example.android.popularmovies;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
@@ -17,20 +18,26 @@ public class MainActivity extends AppCompatActivity {
     private static final String sortByRatings = "top_rated";
     private static final String sortByRelease = "now_playing";
     private ProgressBar mLoadingIndicator;
-    GridView mPostersGrid;
     MovieAdapter mAdapter;
+    RecyclerView mRecyclerView;
+    GridLayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        mPostersGrid = (GridView) findViewById(R.id.gw_posters);
+        mRecyclerView = (RecyclerView) findViewById(R.id.rw_posters);
+        // use a grid layout manager
+        mLayoutManager = new GridLayoutManager(this, 3);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+        // specify an adapter (see also next example)
+        mAdapter = new MovieAdapter(new ArrayList<Movie>(), this);
+        mRecyclerView.setAdapter(mAdapter);
         new MovieTask().execute(sortByPop);
-
-        mAdapter = new MovieAdapter(this, new ArrayList<Movie>());
-        mPostersGrid.setAdapter(mAdapter);
-
     }
 
     @Override
@@ -79,14 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Movie> movies) {
-            mAdapter.clear();
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             if (movies != null && !movies.isEmpty()) {
-                mAdapter.addAll(movies);
+                mAdapter.setMovieData(movies);
             }
-
         }
-
 
     }
 }

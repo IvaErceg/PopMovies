@@ -16,19 +16,33 @@ import java.util.List;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
-    private Context mContext;
+    final private ItemClickListener mOnClickListener;
     private List<Movie> movies;
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public MovieAdapter(List<Movie> data, ItemClickListener listener) {
+        movies = data;
+        mOnClickListener = listener;
+    }
+
+    public interface ItemClickListener{
+        void onItemClick(int clickedItemIndex);
+
+    }
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView poster;
+
         public ViewHolder(View v) {
             super(v);
             poster = (ImageView) v.findViewById(R.id.iw_poster);
+            v.setOnClickListener(this);
         }
-    }
-    public MovieAdapter(List<Movie> data, Context context) {
-        movies = data;
-        mContext = context;
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            mOnClickListener.onItemClick(position);
+
+        }
     }
 
     @Override

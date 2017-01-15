@@ -1,5 +1,6 @@
 package com.example.android.popularmovies;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,11 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.ItemClickListener {
     private static final String sortByPop = "popular";
     private static final String sortByRatings = "top_rated";
     private static final String sortByRelease = "now_playing";
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     MovieAdapter mAdapter;
     RecyclerView mRecyclerView;
     GridLayoutManager mLayoutManager;
+    Toast toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClick(int clickedItemIndex) {
+        Intent i = new Intent(MainActivity.this, DetailActivity.class);
+        startActivity(i);
     }
 
     class MovieTask extends AsyncTask<String, Void, List<Movie>> {

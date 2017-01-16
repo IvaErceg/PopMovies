@@ -15,11 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ItemClickListener {
+    //constants
     private static final String sortByPop = "popular";
     private static final String sortByRatings = "top_rated";
     private static final String sortByRelease = "now_playing";
     private static final int NUM_COLUMNS = 3;
-    private ProgressBar mLoadingIndicator;
+
+    ProgressBar mLoadingIndicator;
     MovieAdapter mAdapter;
     RecyclerView mRecyclerView;
     GridLayoutManager mLayoutManager;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
         // specify an adapter
         mAdapter = new MovieAdapter(new ArrayList<Movie>(), this);
         mRecyclerView.setAdapter(mAdapter);
+        //start AsynTask with default sort
         new MovieTask().execute(sortByPop);
     }
 
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sortRating:
+                //only one menu item can be checked
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
                 new MovieTask().execute(sortByRatings);
@@ -74,14 +78,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
     @Override
     public void onItemClick(Movie movie) {
         Intent i = new Intent(MainActivity.this, DetailActivity.class);
-        ;
-        i.putExtra("title", movie.getTitle());
-        i.putExtra("synopsis", movie.getSynopsis());
-        i.putExtra("votes", movie.getVotes());
-        i.putExtra("release", movie.getReleaseDate());
-        i.putExtra("poster", movie.getPoster());
+        i.putExtra(getString(R.string.title), movie.getTitle());
+        i.putExtra(getString(R.string.synopsis), movie.getSynopsis());
+        i.putExtra(getString(R.string.votes), movie.getVotes());
+        i.putExtra(getString(R.string.release), movie.getReleaseDate());
+        i.putExtra(getString(R.string.poster), movie.getPoster());
         startActivity(i);
     }
+
+    //subclass of AsyncTask, responsible for networking task on the backround thread
 
     class MovieTask extends AsyncTask<String, Void, List<Movie>> {
         @Override
@@ -89,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             super.onPreExecute();
             mLoadingIndicator.setVisibility(View.VISIBLE);
         }
+        // takes sorting parameter, fetch data from network and return list of movies
 
         @Override
         protected List<Movie> doInBackground(String... strings) {
@@ -98,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Item
             String sort = strings[0];
             return NetworkUtils.fetchMovieData(sort);
         }
-
+        // puts returned list of movies into an adapter
         @Override
         protected void onPostExecute(List<Movie> movies) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);

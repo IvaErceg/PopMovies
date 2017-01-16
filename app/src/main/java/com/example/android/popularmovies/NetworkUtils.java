@@ -19,17 +19,23 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Iva on 13.1.2017..
+/*
+Class for implementing network related jobs
  */
-
 public class NetworkUtils {
+    //constants
     private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
     private static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     private static final String QUERY = "api_key";
     private static final String API_KEY = "";
 
-
+    //Methods are modified from course Networking in Android Basics Nanodegree
+    /**
+     * From given String, create URL, connect to API, and parse response into list of Movie Objects
+     *
+     * @param requestUrl Sort type we use to construct full url
+     * @return ArrayList<Movie> constructed from parsing api response
+     */
     public static List<Movie> fetchMovieData(String requestUrl) {
         // Create URL object
         URL url = getUrl(requestUrl);
@@ -46,7 +52,12 @@ public class NetworkUtils {
         return extractFeatureFromJson(jsonResponse);
     }
 
-
+    /**
+     * Get URL from String(sort type user selected)
+     *
+     * @param sort String that we need to construct full URL, describing sort type
+     * @return URL form of string
+     */
     public static URL getUrl(String sort) {
         Uri builtUri = Uri.parse(BASE_URL).buildUpon().appendPath(sort).appendQueryParameter(QUERY, API_KEY).build();
         URL moviesUrl = null;
@@ -59,6 +70,13 @@ public class NetworkUtils {
         return moviesUrl;
     }
 
+    /**
+     * Open connection with given URL and get the response
+     *
+     * @param url URL that hits API's endpoint
+     * @return response from server in form of String
+     * @throws IOException
+     */
     private static String makeHttpRequest(URL url) throws IOException {
         String jsonResponse = "";
 
@@ -100,9 +118,14 @@ public class NetworkUtils {
         return jsonResponse;
     }
 
+
     /**
      * Convert the {@link InputStream} into a String which contains the
-     * whole JSON response from the server.
+     * whole JSON response from the server
+     *
+     * @param inputStream response from server in bytes
+     * @return String Response converted into String
+     * @throws IOException
      */
     public static String readFromStream(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
@@ -118,6 +141,12 @@ public class NetworkUtils {
         return output.toString();
     }
 
+    /**
+     * Parse server's response and construct list of objects from that data
+     *
+     * @param movieJSON String containing server response
+     * @return list of Movie objects
+     */
     private static List<Movie> extractFeatureFromJson(String movieJSON) {
         // If the JSON string is empty or null, then return early.
         if (TextUtils.isEmpty(movieJSON)) {

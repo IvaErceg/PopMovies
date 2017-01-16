@@ -28,25 +28,26 @@ public class DetailActivity extends AppCompatActivity {
         mRelease = (TextView) findViewById(R.id.tw_release);
         mPoster = (ImageView) findViewById(R.id.iw_poster);
 
+        //get data from intent and set it on appropriate view
         Intent i = getIntent();
-        if (i.hasExtra("title")) {
-            String title = i.getStringExtra("title");
+        if (i.hasExtra(getString(R.string.title))) {
+            String title = i.getStringExtra(getString(R.string.title));
             mTitle.setText(title);
         }
-        if (i.hasExtra("votes")) {
-            String votes = i.getStringExtra("votes");
+        if (i.hasExtra(getString(R.string.votes))) {
+            String votes = i.getStringExtra(getString(R.string.votes));
             mVotes.setText(votes);
         }
-        if (i.hasExtra("synopsis")) {
-            String synopsis = i.getStringExtra("synopsis");
+        if (i.hasExtra(getString(R.string.synopsis))) {
+            String synopsis = i.getStringExtra(getString(R.string.synopsis));
             mSynopsis.setText(synopsis);
         }
-        if (i.hasExtra("release")) {
-            String release = i.getStringExtra("release");
+        if (i.hasExtra(getString(R.string.release))) {
+            String release = i.getStringExtra(getString(R.string.release));
             mRelease.setText(release);
         }
-        if (i.hasExtra("poster")) {
-            String poster = i.getStringExtra("poster");
+        if (i.hasExtra(getString(R.string.poster))) {
+            String poster = i.getStringExtra(getString(R.string.poster));
             Picasso.with(context).load(poster).into(mPoster);
         }
     }
